@@ -5,25 +5,23 @@ import lombok.extern.slf4j.Slf4j;
 import me.songha.concert.reservation.general.ReservationDto;
 import me.songha.concert.reservation.general.ReservationRepositoryService;
 import me.songha.concert.reservation.general.ReservationStatus;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import me.songha.concert.reservation.history.ReservationHistoryRepositoryService;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
-
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReservationPendingConsumer {
-    private final ReservationRequestStatusService reservationRequestStatusService;
+    private final ReservationPendingRedisService reservationPendingRedisService;
     private final ReservationRepositoryService reservationRepositoryService;
-    private final StringRedisTemplate redisTemplate;
+    private final ReservationHistoryRepositoryService reservationHistoryRepositoryService;
 
     @KafkaListener(topics = "reservation-topic", groupId = "reservation-group")
-    public void processReservation(ReservationPendingProducerRequest request, Acknowledgment acknowledgment) {
+    public void consume(ConsumerRecord<String, ReservationPendingProducerRequest> record) {
         try {
-            reservationRequestStatusService.saveStatus(request.getRequestId(), ReservationStatus.PROCESSING.toString());
+            ReservationPendingProducerRequest request = record.value();
 
             ReservationDto reservationDto = ReservationDto.builder()
                     .userId(request.getUserId())
@@ -32,15 +30,14 @@ public class ReservationPendingConsumer {
                     .build();
 
             Long reservationId = reservationRepositoryService.createReservation(reservationDto);
+            reservationPendingRedisService.saveReservationIdByRequestId(request.getRequestId(), reservationId);
+            reservationPendingRedisService.updateStatus(request.getRequestId(), ReservationStatus.PROCESSING.toString());
 
-            String key = String.format("reservation-processing-requestId:%s", request.getRequestId());
-            redisTemplate.opsForValue().setIfAbsent(key, String.valueOf(reservationId), 10, TimeUnit.MINUTES);
-
-            acknowledgment.acknowledge();
+            reservationHistoryRepositoryService.saveHistory(reservationId, request.getUserId(), 0, ReservationStatus.PROCESSING);
 
         } catch (Exception e) {
-            reservationRequestStatusService.saveStatus(request.getRequestId(), ReservationStatus.REJECTED.toString());
             log.error("[Error] Failed to process reservation. e.getMessage():{}", e.getMessage(), e);
+            throw e;
         }
     }
 }
