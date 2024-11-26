@@ -1,10 +1,12 @@
 package me.songha.concert.auth;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import me.songha.concert.reservation.general.ReservationDto;
 import me.songha.concert.reservation.general.ReservationNotFoundException;
 import me.songha.concert.reservation.general.ReservationRepositoryService;
+import me.songha.concert.venue.VenueDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -21,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -32,6 +35,7 @@ public class JwtAuthenticationFilterTest {
 
     private SecretKey key;
     private String validToken;
+    private String validTokenAdminRole;
     private String expiredToken;
 
     @MockBean
@@ -44,7 +48,8 @@ public class JwtAuthenticationFilterTest {
 
         validToken = Jwts.builder()
                 .setSubject("user123")
-                .claim("role", "ADMIN")
+                .claim("role", "USER")
+                .claim("userId", 1L)
                 .setExpiration(new Date(System.currentTimeMillis() + 60 * 1000))
                 .signWith(key)
                 .compact();
@@ -52,7 +57,16 @@ public class JwtAuthenticationFilterTest {
         expiredToken = Jwts.builder()
                 .setSubject("user123")
                 .claim("role", "USER")
+                .claim("userId", 1L)
                 .setExpiration(new Date(System.currentTimeMillis() - 60 * 1000))
+                .signWith(key)
+                .compact();
+
+        validTokenAdminRole = Jwts.builder()
+                .setSubject("user123")
+                .claim("role", "ADMIN")
+                .claim("userId", 1L)
+                .setExpiration(new Date(System.currentTimeMillis() + 60 * 1000))
                 .signWith(key)
                 .compact();
 
@@ -67,7 +81,7 @@ public class JwtAuthenticationFilterTest {
 
     @Test
     void 올바른_토큰_인증_성공() throws Exception {
-        mockMvc.perform(get("/reservation/1")
+        mockMvc.perform(get("/reservation/my")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -75,14 +89,14 @@ public class JwtAuthenticationFilterTest {
 
     @Test
     void 토큰_없음_401_응답() throws Exception {
-        mockMvc.perform(get("/reservation/1")
+        mockMvc.perform(get("/reservation/my")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     void 만료된_토큰_401_응답() throws Exception {
-        mockMvc.perform(get("/reservation/1")
+        mockMvc.perform(get("/reservation/my")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + expiredToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
@@ -92,28 +106,44 @@ public class JwtAuthenticationFilterTest {
     void 잘못된_토큰_401_응답() throws Exception {
         String invalidToken = "invalid.token.value";
 
-        mockMvc.perform(get("/reservation/1")
+        mockMvc.perform(get("/reservation/my")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + invalidToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void 존재하지_않는_예약_404_응답() throws Exception {
-        mockMvc.perform(get("/reservation/99")
+    void 권한없음_403_응답() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String requestBody = objectMapper.writeValueAsString(VenueDto.builder().name("venue").build());
+
+        mockMvc.perform(post("/api/venue")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void 권한보유_201_응답() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String requestBody = objectMapper.writeValueAsString(VenueDto.builder().name("venue").build());
+
+        mockMvc.perform(post("/api/venue")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + validTokenAdminRole)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().is2xxSuccessful());
     }
 
     @Test
     void generateJWT() {
         String jwt = Jwts.builder()
-                .claim("userId", 321L)
+                .claim("userId", 567L)
                 .setSubject("userId123")
                 .claim("role", "USER")
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 300 * 60 * 60 * 24)) // 300일 유효
+                .setExpiration(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000))
                 .signWith(key)
                 .compact();
 

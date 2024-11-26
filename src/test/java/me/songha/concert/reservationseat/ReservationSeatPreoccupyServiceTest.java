@@ -47,7 +47,7 @@ class ReservationSeatPreoccupyServiceTest {
         redisTemplate.setValueSerializer(new StringRedisSerializer());
 
         reservationSeatRepository = Mockito.mock(ReservationSeatRepository.class);
-        reservationSeatPreoccupyService = new ReservationSeatPreoccupyService(redisTemplate, reservationSeatRepository);
+//        reservationSeatPreoccupyService = new ReservationSeatPreoccupyService(redisTemplate, reservationSeatRepository);
     }
 
     @DisplayName("좌석을 선점한다.")

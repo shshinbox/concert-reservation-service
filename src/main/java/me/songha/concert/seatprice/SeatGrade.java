@@ -1,6 +1,6 @@
 package me.songha.concert.seatprice;
 
-import me.songha.concert.common.ReservationIllegalArgumentException;
+import me.songha.concert.common.exception.ReservationIllegalArgumentException;
 
 import java.util.Arrays;
 import java.util.List;
