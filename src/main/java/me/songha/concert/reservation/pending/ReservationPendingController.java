@@ -1,7 +1,10 @@
 package me.songha.concert.reservation.pending;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import me.songha.concert.common.CurrentUser;
+import me.songha.concert.concert.ConcertDto;
+import me.songha.concert.concert.ConcertRepositoryService;
 import me.songha.concert.reservation.general.ReservationStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,14 +14,18 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class ReservationPendingController {
     private final ReservationPendingProducer reservationPendingProducer;
-    private final ReservationRequestStatusService reservationRequestStatusService;
+    private final ReservationPendingRedisService reservationPendingRedisService;
+    private final ConcertRepositoryService concertRepositoryService;
 
     @PostMapping
-    public ResponseEntity<ReservationPendingResponse> pendingReservation(@CurrentUser Long userId, @RequestBody ReservationPendingRequest request) {
-        String requestId = "RES" + userId + "-" + System.currentTimeMillis();
+    public ResponseEntity<ReservationPendingResponse> pendingReservation(
+            @CurrentUser Long userId, @Valid @RequestBody ReservationPendingRequest request) {
+        String requestId = RequestNumberGenerator.generateRequestNumber(userId);
 
-        reservationRequestStatusService.saveStatus(requestId, ReservationStatus.PENDING.toString());
-        reservationPendingProducer.sendToQueue(requestId, userId, request.getConcertId());
+        ConcertDto concertDto = concertRepositoryService.getConcert(request.getConcertId());
+
+        reservationPendingProducer.sendToQueue(requestId, userId, concertDto.getId());
+        reservationPendingRedisService.saveStatus(requestId, ReservationStatus.PENDING.name());
 
         ReservationPendingResponse response = new ReservationPendingResponse(
                 requestId,
@@ -29,11 +36,11 @@ public class ReservationPendingController {
 
     @GetMapping("/request-id/{requestId}/details")
     public ResponseEntity<ReservationDetailsResponse> getReservationDetails(@PathVariable String requestId) {
-        String status = reservationRequestStatusService.getStatus(requestId);
-        if (status == null) {
-            return ResponseEntity.status(404).body(new ReservationDetailsResponse(null, "[Error] Request ID not found.", null));
+        String status = reservationPendingRedisService.getStatusByRequestId(requestId);
+        if (status == null || status.equals(ReservationStatus.PENDING.name())) {
+            return ResponseEntity.status(404).body(new ReservationDetailsResponse(requestId, "[Error] Request ID not found.", null));
         }
-        String reservationId = reservationRequestStatusService.getReservationIdByRequestId(requestId);
+        String reservationId = reservationPendingRedisService.getReservationIdByRequestId(requestId);
 
         return ResponseEntity.ok(new ReservationDetailsResponse(requestId, status, reservationId));
     }

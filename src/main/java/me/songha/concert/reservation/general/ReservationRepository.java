@@ -14,6 +14,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     @Query("select r from Reservation r where r.concert.id = :concertId")
     Page<Reservation> findByConcertId(Long concertId, Pageable pageable);
 
-    @Query("select r from Reservation r where r.userId = :userId and r.concert.id = :concertId")
-    Optional<Reservation> findByUserIdAndConcertId(Long userId, Long concertId);
+    @Query(value = "select r from Reservation r where r.userId = :userId and r.concert.id = :concertId order by r.id desc limit 1")
+    Optional<Reservation> findTopByUserIdAndConcertId(Long userId, Long concertId);
 }

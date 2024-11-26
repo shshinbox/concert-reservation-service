@@ -1,8 +1,9 @@
 package me.songha.concert.seat;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import me.songha.concert.common.BaseTimeEntity;
+import me.songha.concert.common.entity.BaseTimeEntity;
 import me.songha.concert.seatprice.SeatGrade;
 import me.songha.concert.venue.Venue;
 
@@ -16,12 +17,15 @@ public class Seat extends BaseTimeEntity {
     @Id
     private Long id;
 
+    @NotNull
     private String seatNumber;
 
-    @ManyToOne
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "venue_id")
     private Venue venue;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     private SeatGrade grade;
 

@@ -21,7 +21,7 @@ public class ReservationHistoryConverter {
                 .id(reservationHistory.getId())
                 .userId(reservationHistory.getUserId())
                 .reservationId(reservationHistory.getReservation().getId())
-                .reservationStatus(reservationHistory.getStatus().toString())
+                .reservationStatus(reservationHistory.getStatus().name())
                 .amount(reservationHistory.getAmount())
                 .build();
     }

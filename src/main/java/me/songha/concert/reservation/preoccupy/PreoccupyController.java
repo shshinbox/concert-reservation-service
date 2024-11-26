@@ -1,5 +1,6 @@
 package me.songha.concert.reservation.preoccupy;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import me.songha.concert.common.CurrentUser;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +16,9 @@ public class PreoccupyController {
     private final PreoccupySeatService preoccupySeatService;
 
     @PostMapping
-    public ResponseEntity<PreoccupySeatsResponse> preoccupySeats(@CurrentUser Long userId, @RequestBody PreoccupySeatRequest request) {
-        PreoccupySeatsResponse response = preoccupySeatService.preoccupySeats(request.getConcertId(), userId, request.getSeatNumbers());
+    public ResponseEntity<PreoccupySeatsResponse> preoccupySeats(@CurrentUser Long userId, @Valid @RequestBody PreoccupySeatRequest request) {
+        PreoccupySeatsResponse response = preoccupySeatService.preoccupySeats(
+                request.getConcertId(), userId, request.getRequestId(), request.getSeatNumbers());
         return ResponseEntity.ok(response);
     }
 

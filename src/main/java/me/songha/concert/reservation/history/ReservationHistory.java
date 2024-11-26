@@ -2,7 +2,7 @@ package me.songha.concert.reservation.history;
 
 import jakarta.persistence.*;
 import lombok.*;
-import me.songha.concert.common.BaseTimeEntity;
+import me.songha.concert.common.entity.BaseTimeEntity;
 import me.songha.concert.reservation.general.Reservation;
 import me.songha.concert.reservation.general.ReservationStatus;
 

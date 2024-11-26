@@ -1,8 +1,10 @@
 package me.songha.concert.venue;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import me.songha.concert.common.BaseTimeEntity;
+import me.songha.concert.common.entity.BaseTimeEntity;
 import me.songha.concert.seat.Seat;
 
 import java.util.List;
@@ -17,12 +19,17 @@ public class Venue extends BaseTimeEntity {
     @Id
     private Long id;
 
+    @NotNull
     @Column(unique = true)
     private String name;
 
+    @Min(0)
+    @NotNull
     private Integer capacity;
 
-    @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL)
+    @Min(1)
+    @NotNull
+    @OneToMany(mappedBy = "venue", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Seat> seats;
 
     @Builder

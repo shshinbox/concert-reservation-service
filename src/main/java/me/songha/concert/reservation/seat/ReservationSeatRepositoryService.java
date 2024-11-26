@@ -1,15 +1,17 @@
 package me.songha.concert.reservation.seat;
 
 import lombok.RequiredArgsConstructor;
-import me.songha.concert.seatprice.SeatPriceNotFoundException;
-import me.songha.concert.seatprice.SeatPriceRepository;
 import me.songha.concert.reservation.general.Reservation;
 import me.songha.concert.reservation.general.ReservationNotFoundException;
 import me.songha.concert.reservation.general.ReservationRepository;
 import me.songha.concert.seat.Seat;
 import me.songha.concert.seat.SeatNotFoundException;
+import me.songha.concert.seatprice.SeatPriceNotFoundException;
+import me.songha.concert.seatprice.SeatPriceRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Transactional
 @RequiredArgsConstructor
@@ -19,7 +21,13 @@ public class ReservationSeatRepositoryService {
     private final ReservationRepository reservationRepository;
     private final SeatPriceRepository seatPriceRepository;
 
-    public void createReservationSeat(Long reservationId, String seatNumber) {
+    public void reserveSeats(Long reservationId, List<String> seatNumbers) {
+        for (String seatNumber : seatNumbers) {
+            createReservationSeat(reservationId, seatNumber);
+        }
+    }
+
+    private void createReservationSeat(Long reservationId, String seatNumber) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ReservationNotFoundException("[Error] Reservation not found."));
 

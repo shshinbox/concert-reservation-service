@@ -1,8 +1,10 @@
 package me.songha.concert.reservation.progress;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.songha.concert.common.CurrentUser;
+import me.songha.concert.reservation.general.ReservationStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,11 +20,12 @@ public class ReservationProgressController {
 
     @PatchMapping
     public ResponseEntity<ReservationProgressResponse> progressReservation(
-            @CurrentUser Long userId, @RequestBody ReservationProgressRequest request) {
-        reservationProgressService.progressReservation(request.getReservationId(), userId, request.getSeatNumbers(), request.getConcertId());
+            @CurrentUser Long userId, @Valid @RequestBody ReservationProgressRequest request) {
+        ReservationStatus status = reservationProgressService.progressReservation(request.getReservationId(), userId, request.getSeatNumbers(), request.getConcertId());
         ReservationProgressResponse response = new ReservationProgressResponse(
                 request.getSeatNumbers(),
-                "Reservation processed successfully.");
+                status,
+                "Reservation process has been completed.");
         return ResponseEntity.ok(response);
     }
 

@@ -1,6 +1,7 @@
 package me.songha.concert.reservation.general;
 
 import lombok.RequiredArgsConstructor;
+import me.songha.concert.common.exception.ReservationIllegalArgumentException;
 import me.songha.concert.concert.Concert;
 import me.songha.concert.concert.ConcertNotFoundException;
 import me.songha.concert.concert.ConcertRepository;
@@ -30,7 +31,7 @@ public class ReservationRepositoryService {
     }
 
     public ReservationDto getReservationByUserIdAndConcertId(Long userId, Long concertId) {
-        return reservationRepository.findByUserIdAndConcertId(userId, concertId)
+        return reservationRepository.findTopByUserIdAndConcertId(userId, concertId)
                 .map(reservationConverter::toDto)
                 .orElseThrow(() -> new ReservationNotFoundException("[Error] Reservation not found."));
     }
@@ -53,6 +54,10 @@ public class ReservationRepositoryService {
     public void updateReservationInfo(Long id, String reservationNumber, int amount, ReservationStatus status) {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new ReservationNotFoundException("[Error] Reservation not found."));
+
+        if (reservation.getStatus().name().equals(ReservationStatus.CONFIRMED.name())) {
+            throw new ReservationIllegalArgumentException("[Error] Reservation is already confirmed.");
+        }
 
         reservation.update(amount, status, reservationNumber);
 

@@ -2,7 +2,7 @@ package me.songha.concert.reservation.preoccupy;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.songha.concert.common.ReservationIllegalArgumentException;
+import me.songha.concert.reservation.pending.ReservationPendingRedisService;
 import me.songha.concert.reservation.seat.ReservationSeatNotAvailableException;
 import me.songha.concert.reservation.seat.ReservationSeatPreoccupyService;
 import org.springframework.stereotype.Service;
@@ -14,9 +14,10 @@ import java.util.List;
 @Service
 public class PreoccupySeatService {
     private final ReservationSeatPreoccupyService reservationSeatPreoccupyService;
+    private final ReservationPendingRedisService reservationPendingRedisService;
 
-    public PreoccupySeatsResponse preoccupySeats(Long concertId, Long userId, List<String> seatNumbers) {
-        validateMaxSeatLimit(seatNumbers);
+    public PreoccupySeatsResponse preoccupySeats(Long concertId, Long userId, String requestId, List<String> seatNumbers) {
+        reservationPendingRedisService.validRequestId(requestId);
 
         for (String seatNumber : seatNumbers) {
             boolean isSeatAvailable = reservationSeatPreoccupyService.isSeatAvailable(concertId, seatNumber);
@@ -30,12 +31,6 @@ public class PreoccupySeatService {
         }
 
         return new PreoccupySeatsResponse(concertId, userId, seatNumbers, "Seats have been reserved.");
-    }
-
-    private void validateMaxSeatLimit(List<String> seatNumbers) {
-        if (seatNumbers.size() > 4) {
-            throw new ReservationIllegalArgumentException("[Error] Max number of seats is 4.");
-        }
     }
 
 }

@@ -1,31 +1,26 @@
 package me.songha.concert.reservation.seat;
 
 import lombok.RequiredArgsConstructor;
-import me.songha.concert.common.ReservationIllegalArgumentException;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import me.songha.concert.common.exception.ReservationIllegalArgumentException;
+import me.songha.concert.common.StringRedisService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 @Transactional
 @RequiredArgsConstructor
 @Service
 public class ReservationSeatPreoccupyService {
-    private final StringRedisTemplate redisTemplate;
+    private static final String RESERVATION_SEAT_KEY_PREFIX = "reservation_seat_concert:%d:seat:%s";
+    private static final String RESERVATION_SEAT_KEY_PATTERN_PREFIX = "reservation_seat_concert:%d:seat:*";
+    private final StringRedisService redisService;
     private final ReservationSeatRepository reservationSeatRepository;
 
-    /**
-     * key: concert:%d:seat:%s | value: userId
-     */
     public boolean preoccupySeats(Long concertId, String seatNumber, Long userId) {
-        String key = String.format("concert:%d:seat:%s", concertId, seatNumber);
-        Boolean isReserved = redisTemplate.opsForValue().setIfAbsent(key, String.valueOf(userId), 10, TimeUnit.MINUTES);
-
-        return Objects.equals(isReserved, true);
+        String key = String.format(RESERVATION_SEAT_KEY_PREFIX, concertId, seatNumber);
+        return redisService.create(key, String.valueOf(userId));
     }
 
     public List<String> getSoldSeatsByConcert(Long concertId) {
@@ -33,17 +28,17 @@ public class ReservationSeatPreoccupyService {
     }
 
     public Set<String> getPreoccupiedSeatsByConcert(Long concertId) {
-        String pattern = String.format("concert:%d:seat:*", concertId);
-        return redisTemplate.keys(pattern);
+        String pattern = String.format(RESERVATION_SEAT_KEY_PATTERN_PREFIX, concertId);
+        return redisService.getKeysByPattern(pattern);
     }
 
     public String getUserIdByConcertAndSeatNumber(Long concertId, String seatNumber) {
-        String seatKey = String.format("concert:%d:seat:%s", concertId, seatNumber);
-        return redisTemplate.opsForValue().get(seatKey);
+        String key = String.format(RESERVATION_SEAT_KEY_PREFIX, concertId, seatNumber);
+        return redisService.getValue(key);
     }
 
     public boolean isSeatAvailable(Long concertId, String seatNumber) {
-        String seatKey = String.format("concert:%d:seat:%s", concertId, seatNumber);
+        String seatKey = String.format(RESERVATION_SEAT_KEY_PREFIX, concertId, seatNumber);
         List<String> soldSeats = getSoldSeatsByConcert(concertId);
         Set<String> preoccupiedSeats = getPreoccupiedSeatsByConcert(concertId);
 
@@ -53,7 +48,7 @@ public class ReservationSeatPreoccupyService {
         return !(isSold || isReserved);
     }
 
-    public void isValidatedSeatForCurrentUser(Long concertId, Long userId, List<String> seatNumbers) {
+    public void isSeatValidatedForCurrentUser(Long concertId, Long userId, List<String> seatNumbers) {
         for (String seatNumber : seatNumbers) {
             boolean isValidatedSeatForCurrentUser = String.valueOf(userId).equals(getUserIdByConcertAndSeatNumber(concertId, seatNumber));
             if (!isValidatedSeatForCurrentUser) {

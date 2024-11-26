@@ -9,13 +9,13 @@ import java.util.concurrent.ThreadLocalRandom;
 @Service
 public class MockPaymentService {
 
-    public PaymentStatus getPaymentStatus(Long reservationId, int amount) {
+    public PaymentStatus getPaymentStatus(Long reservationId) {
         double random = ThreadLocalRandom.current().nextDouble();
 
         if (random < 0.2) { // 취소: 20%
             log.info("Payment canceled. reservationId: {}", reservationId);
-            return PaymentStatus.CANCELLED;
-        } else if (random < 0.8) { // 성공: 60%
+            return PaymentStatus.CANCELED;
+        } else if (random < 0.6) { // 성공: 60%
             log.info("Payment successful. reservationId: {}", reservationId);
             return PaymentStatus.CONFIRMED;
         } else { // 결제 실패: 20%

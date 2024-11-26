@@ -1,8 +1,10 @@
 package me.songha.concert.concert;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import me.songha.concert.common.BaseTimeEntity;
+import me.songha.concert.common.entity.BaseTimeEntity;
 import me.songha.concert.seatprice.SeatPrice;
 import me.songha.concert.venue.Venue;
 
@@ -19,23 +21,31 @@ public class Concert extends BaseTimeEntity {
     @Id
     private Long id;
 
+    @NotNull
     private String title;
 
     private String description;
 
-    @ManyToOne
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "venue_id")
     private Venue venue;
 
-    @OneToMany(mappedBy = "concert")
+    @NotNull
+    @OneToMany(mappedBy = "concert", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<SeatPrice> seatPrices;
 
+    @NotNull
     private LocalDateTime concertDate;
 
+    @Min(1)
+    @NotNull
     private Integer runningTime;
 
+    @NotNull
     private LocalDateTime salesStartAt;
 
+    @NotNull
     private LocalDateTime salesEndAt;
 
     @Builder

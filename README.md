@@ -89,14 +89,14 @@ Responese: {
 #### 2. 예매 신청 진입 상태값 반환 요청
 
 ```bash
-curl -X GET http://localhost:8080/reservation/pending/request-id/RES321-1732101253406/details \
+curl -X GET http://localhost:8080/reservation/pending/request-id/RES567-20241127013759-832/details \
 -H "Content-Type: application/json" \
 -H "Authorization: Bearer <jwt-token>"
 ```
 
 ```bash
 Responese: {
-    "requestId": "RES321-1732101253406",
+    "requestId":"RES567-20241127013759-832",
     "status": "PROCESSING",
     "reservationId": "86"
 }
@@ -110,6 +110,7 @@ curl -X POST http://localhost:8080/api/reservation/preoccupy \
 -H "Authorization: Bearer <jwt-token>" \
 -d '{
     "concertId": 1,
+    "requestId":"RES567-20241127013759-832",
     "seatNumbers": ["A1", "A2"]
 }'
 ```
@@ -129,12 +130,8 @@ curl -X PATCH http://localhost:8080/api/reservation/progress \
 
 ```bash
 Responese: {
-    "concertId": 1,
-    "userId": 321,
-    "seatNumbers": [
-        "A1",
-        "A2"
-    ],
-    "message": "Seats have been reserved."
+    "seatNumbers":["A1", "A2"],
+    "status": "CONFIRMED",
+    "message": "Reservation process has been completed."
 }
 ```
