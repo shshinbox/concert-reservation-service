@@ -1,8 +1,8 @@
 package me.songha.concert.config;
 
 import lombok.extern.slf4j.Slf4j;
-import me.songha.concert.common.exception.NotFoundException;
 import me.songha.concert.common.exception.ReservationIllegalArgumentException;
+import me.songha.concert.concert.ConcertNotFoundException;
 import me.songha.concert.reservation.pending.ReservationPendingProducerRequest;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -33,7 +33,7 @@ public class KafkaConsumerConfig {
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "reservation-group");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
-        props.put(JsonDeserializer.TRUSTED_PACKAGES, "me.songha.concert");
+        props.put(JsonDeserializer.TRUSTED_PACKAGES, "me.songha.concert.*");
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         return props;
     }
@@ -69,10 +69,10 @@ public class KafkaConsumerConfig {
     public DefaultErrorHandler errorHandler(KafkaTemplate<String, Object> kafkaTemplate) {
         DefaultErrorHandler errorHandler = new DefaultErrorHandler((record, exception) -> {
             kafkaTemplate.send(DLQ_TOPIC, record.key().toString(), record.value());
-            log.error("Moved to DLQ: {}", record.value());
+            log.error("[Error] Moved to DLQ: {}", record.value());
         }, new FixedBackOff(3000L, 3));
 
-        errorHandler.addNotRetryableExceptions(ReservationIllegalArgumentException.class, NotFoundException.class);
+        errorHandler.addNotRetryableExceptions(ReservationIllegalArgumentException.class, ConcertNotFoundException.class);
         errorHandler.setAckAfterHandle(true);
         return errorHandler;
     }

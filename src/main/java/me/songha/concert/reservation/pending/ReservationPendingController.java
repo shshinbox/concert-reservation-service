@@ -3,8 +3,6 @@ package me.songha.concert.reservation.pending;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import me.songha.concert.common.CurrentUser;
-import me.songha.concert.concert.ConcertDto;
-import me.songha.concert.concert.ConcertRepositoryService;
 import me.songha.concert.reservation.general.ReservationStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,16 +13,13 @@ import org.springframework.web.bind.annotation.*;
 public class ReservationPendingController {
     private final ReservationPendingProducer reservationPendingProducer;
     private final ReservationPendingRedisService reservationPendingRedisService;
-    private final ConcertRepositoryService concertRepositoryService;
 
     @PostMapping
     public ResponseEntity<ReservationPendingResponse> pendingReservation(
             @CurrentUser Long userId, @Valid @RequestBody ReservationPendingRequest request) {
         String requestId = RequestNumberGenerator.generateRequestNumber(userId);
 
-        ConcertDto concertDto = concertRepositoryService.getConcert(request.getConcertId());
-
-        reservationPendingProducer.sendToQueue(requestId, userId, concertDto.getId());
+        reservationPendingProducer.sendToQueue(requestId, userId, request.getConcertId());
         reservationPendingRedisService.saveStatus(requestId, ReservationStatus.PENDING.name());
 
         ReservationPendingResponse response = new ReservationPendingResponse(
