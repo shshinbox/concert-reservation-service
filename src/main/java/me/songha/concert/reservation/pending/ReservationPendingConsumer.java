@@ -2,42 +2,43 @@ package me.songha.concert.reservation.pending;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.songha.concert.reservation.general.ReservationDto;
-import me.songha.concert.reservation.general.ReservationRepositoryService;
-import me.songha.concert.reservation.general.ReservationStatus;
-import me.songha.concert.reservation.history.ReservationHistoryRepositoryService;
+import me.songha.concert.common.exception.NotFoundException;
+import me.songha.concert.common.exception.ReservationIllegalArgumentException;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
+@Transactional
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReservationPendingConsumer {
-    private final ReservationPendingRedisService reservationPendingRedisService;
-    private final ReservationRepositoryService reservationRepositoryService;
-    private final ReservationHistoryRepositoryService reservationHistoryRepositoryService;
+    private final ReservationPendingService reservationPendingService;
 
-    @KafkaListener(topics = "reservation-topic", groupId = "reservation-group")
-    public void consume(ConsumerRecord<String, ReservationPendingProducerRequest> record) {
-        try {
-            ReservationPendingProducerRequest request = record.value();
+    @KafkaListener(
+            topics = "reservation-topic",
+            groupId = "reservation-group",
+            concurrency = "3",
+            containerFactory = "reservationKafkaListenerContainerFactory")
+    public void consume(List<ConsumerRecord<String, ReservationPendingProducerRequest>> records) {
+        int success = 0, failed = 0;
+        for (ConsumerRecord<String, ReservationPendingProducerRequest> record : records) {
+            try {
+                reservationPendingService.processing(record.value());
+                success++;
 
-            ReservationDto reservationDto = ReservationDto.builder()
-                    .userId(request.getUserId())
-                    .concertId(request.getConcertId())
-                    .reservationStatus(ReservationStatus.PROCESSING.toString())
-                    .build();
+            } catch (ReservationIllegalArgumentException | NotFoundException ex) {
+                log.error("[Error] Failed to process reservation. e.getMessage():{}", ex.getMessage(), ex);
+                failed++;
 
-            Long reservationId = reservationRepositoryService.createReservation(reservationDto);
-            reservationPendingRedisService.saveReservationIdByRequestId(request.getRequestId(), reservationId);
-            reservationPendingRedisService.updateStatus(request.getRequestId(), ReservationStatus.PROCESSING.toString());
-
-            reservationHistoryRepositoryService.saveHistory(reservationId, request.getUserId(), 0, ReservationStatus.PROCESSING);
-
-        } catch (Exception e) {
-            log.error("[Error] Failed to process reservation. e.getMessage():{}", e.getMessage(), e);
-            throw e;
+            } catch (Exception e) {
+                log.error("[Error] Temporary error for message {}. Sent through DefaultErrorHandler.", record.value(), e);
+                failed++;
+            }
         }
+        log.info("Batch processed successfully. Success: {}, Failed: {}", success, failed);
     }
 }
