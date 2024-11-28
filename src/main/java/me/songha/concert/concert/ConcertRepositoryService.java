@@ -1,7 +1,6 @@
 package me.songha.concert.concert;
 
 import lombok.RequiredArgsConstructor;
-import me.songha.concert.seatprice.SeatPriceRepository;
 import me.songha.concert.venue.Venue;
 import me.songha.concert.venue.VenueNotFoundException;
 import me.songha.concert.venue.VenueRepository;
@@ -16,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class ConcertRepositoryService {
     private final ConcertRepository concertRepository;
     private final VenueRepository venueRepository;
-    private final SeatPriceRepository seatPriceRepository;
     private final ConcertConverter concertConverter;
 
     public Page<ConcertDto> getAllConcerts(Pageable pageable) {
@@ -24,7 +22,7 @@ public class ConcertRepositoryService {
     }
 
     public ConcertDto getConcert(Long id) {
-        return concertRepository.findById(id)
+        return concertRepository.findByConcertId(id)
                 .map(concertConverter::toDto)
                 .orElseThrow(() -> new ConcertNotFoundException("[Error] Concert not found."));
     }

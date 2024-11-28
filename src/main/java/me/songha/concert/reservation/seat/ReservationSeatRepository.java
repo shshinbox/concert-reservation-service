@@ -6,12 +6,11 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface ReservationSeatRepository extends JpaRepository<ReservationSeat, Long> {
-    @Query("select rs from ReservationSeat rs where rs.reservation.id = :reservationId")
-    List<ReservationSeat> findByReservation(Long reservationId);
-
-    @Query("select rs.id from ReservationSeat rs where rs.reservation.concert.id = :concertId")
-    List<Long> findIdsByConcertId(Long concertId);
-
-    @Query("select rs.seat.seatNumber from ReservationSeat rs where rs.reservation.concert.id = :concertId")
-    List<String> findSeatNumbersByConcertId(Long concertId);
+    @Query("""
+            select new me.songha.concert.reservation.seat.ReservationSeatDto(rs.id, rs.reservation.id, s.seatNumber, rs.price)
+            from ReservationSeat rs
+            join rs.seat s
+            where rs.reservation.id in :reservationIds
+            """)
+    List<ReservationSeatDto> findByReservationIds(List<Long> reservationIds);
 }

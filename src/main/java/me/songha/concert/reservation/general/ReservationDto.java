@@ -2,6 +2,7 @@ package me.songha.concert.reservation.general;
 
 import lombok.Builder;
 import lombok.Data;
+import me.songha.concert.reservation.seat.ReservationSeatDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,14 +15,14 @@ public class ReservationDto {
     private String concertTitle;
     private Integer totalAmount;
     private String reservationStatus;
-    private List<String> seatNumbers;
+    private List<ReservationSeatDto> reservationSeats;
     private String reservationNumber;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     @Builder
     public ReservationDto(Long id, Long userId, Long concertId, String concertTitle, Integer totalAmount,
-                          String reservationStatus, List<String> seatNumbers, String reservationNumber,
+                          String reservationStatus, List<ReservationSeatDto> reservationSeats, String reservationNumber,
                           LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.userId = userId;
@@ -29,7 +30,7 @@ public class ReservationDto {
         this.concertTitle = concertTitle;
         this.totalAmount = totalAmount;
         this.reservationStatus = reservationStatus;
-        this.seatNumbers = seatNumbers;
+        this.reservationSeats = reservationSeats;
         this.reservationNumber = reservationNumber;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;

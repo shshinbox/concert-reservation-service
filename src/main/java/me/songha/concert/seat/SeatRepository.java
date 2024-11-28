@@ -12,4 +12,13 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
 
     @Query("select s.grade from Seat s where s.seatNumber = :seatNumber")
     Optional<String> findGradeBySeatNumber(String seatNumber);
+
+    @Query("""
+            select s.seatNumber
+            from Seat s
+            join s.reservationSeats rs
+            join rs.reservation r
+            where r.concert.id = :concertId
+            """)
+    List<String> findSeatNumbersByConcertId(Long concertId);
 }

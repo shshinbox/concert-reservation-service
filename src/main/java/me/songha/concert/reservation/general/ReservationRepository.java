@@ -8,12 +8,38 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.Optional;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
-    @Query("select r from Reservation r where r.userId = :userId")
+    @Query("""
+            select r
+            from Reservation r
+            join fetch r.concert c
+            where r.userId = :userId
+            """)
     Page<Reservation> findByUserId(Long userId, Pageable pageable);
 
-    @Query("select r from Reservation r where r.concert.id = :concertId")
+    @Query("""
+            select r
+            from Reservation r
+            join fetch r.concert c
+            where r.concert.id = :concertId
+            """)
     Page<Reservation> findByConcertId(Long concertId, Pageable pageable);
 
-    @Query(value = "select r from Reservation r where r.userId = :userId and r.concert.id = :concertId order by r.id desc limit 1")
+    @Query(value = """
+            select r
+            from Reservation r
+            join fetch r.concert c
+            where r.id = :id order by r.id desc limit 1
+            """)
+    Optional<Reservation> findReservationById(Long id);
+
+    @Query(value = """
+            select r
+            from Reservation r
+            join fetch r.concert c
+            where r.userId = :userId
+            and r.concert.id = :concertId
+            order by r.id desc
+            limit 1
+            """)
     Optional<Reservation> findTopByUserIdAndConcertId(Long userId, Long concertId);
 }

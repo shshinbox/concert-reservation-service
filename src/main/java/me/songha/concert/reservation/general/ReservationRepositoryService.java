@@ -5,12 +5,17 @@ import me.songha.concert.common.exception.ReservationIllegalArgumentException;
 import me.songha.concert.concert.Concert;
 import me.songha.concert.concert.ConcertNotFoundException;
 import me.songha.concert.concert.ConcertRepository;
+import me.songha.concert.reservation.seat.ReservationSeatDto;
+import me.songha.concert.reservation.seat.ReservationSeatRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Transactional
 @RequiredArgsConstructor
@@ -19,10 +24,26 @@ public class ReservationRepositoryService {
     private final ReservationRepository reservationRepository;
     private final ReservationConverter reservationConverter;
     private final ConcertRepository concertRepository;
+    private final ReservationSeatRepository reservationSeatRepository;
 
     public Page<ReservationDto> getReservationsByUserId(Long userId, Pageable pageable) {
-        return reservationRepository.findByUserId(userId, pageable)
+        Page<ReservationDto> reservations = reservationRepository.findByUserId(userId, pageable)
                 .map(reservationConverter::toDto);
+
+        List<Long> reservationIds = reservations.stream().map(ReservationDto::getId).toList();
+
+        List<ReservationSeatDto> reservationSeats = reservationSeatRepository.findByReservationIds(reservationIds);
+
+        Map<Long, List<ReservationSeatDto>> reservationSeatsMap = reservationSeats.stream()
+                .collect(Collectors.groupingBy(ReservationSeatDto::getReservationId));
+
+        reservations.map(reservation -> {
+            List<ReservationSeatDto> seats = reservationSeatsMap.getOrDefault(reservation.getId(), Collections.emptyList());
+            reservation.setReservationSeats(seats);
+            return reservation;
+        });
+
+        return reservations;
     }
 
     public Page<ReservationDto> getReservationsByConcertId(Long concertId, Pageable pageable) {
@@ -37,13 +58,13 @@ public class ReservationRepositoryService {
     }
 
     public ReservationDto getReservation(Long id) {
-        return reservationRepository.findById(id)
+        return reservationRepository.findReservationById(id)
                 .map(reservationConverter::toDto)
                 .orElseThrow(() -> new ReservationNotFoundException("[Error] Reservation not found."));
     }
 
     public Long createReservation(ReservationDto reservationDto) {
-        Concert concert = concertRepository.findById(reservationDto.getConcertId())
+        Concert concert = concertRepository.findByConcertId(reservationDto.getConcertId())
                 .orElseThrow(() -> new ConcertNotFoundException("[Error] Concert not found."));
         Reservation reservation = reservationConverter.toEntity(reservationDto, concert, List.of());
         Reservation createdReservation = reservationRepository.save(reservation);

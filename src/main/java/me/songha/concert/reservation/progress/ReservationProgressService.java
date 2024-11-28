@@ -9,7 +9,7 @@ import me.songha.concert.payment.TotalAmountService;
 import me.songha.concert.reservation.general.ReservationRepositoryService;
 import me.songha.concert.reservation.general.ReservationStatus;
 import me.songha.concert.reservation.history.ReservationHistoryRepositoryService;
-import me.songha.concert.reservation.seat.ReservationSeatPreoccupyService;
+import me.songha.concert.reservation.preoccupy.PreoccupyRedisService;
 import me.songha.concert.reservation.seat.ReservationSeatRepositoryService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,11 +25,11 @@ public class ReservationProgressService {
     private final ReservationRepositoryService reservationRepositoryService;
     private final ReservationHistoryRepositoryService reservationHistoryRepositoryService;
     private final ReservationSeatRepositoryService reservationSeatRepositoryService;
-    private final ReservationSeatPreoccupyService reservationSeatPreoccupyService;
+    private final PreoccupyRedisService preoccupyRedisService;
     private final TotalAmountService totalAmountService;
 
     public ReservationStatus progressReservation(Long reservationId, Long userId, List<String> seatNumbers, Long concertId) {
-        reservationSeatPreoccupyService.isSeatValidatedForCurrentUser(concertId, userId, seatNumbers);
+        preoccupyRedisService.isSeatValidatedForCurrentUser(concertId, userId, seatNumbers);
 
         String reservationNumber = ReservationNumberGenerator.generateReservationNumber(reservationId);
         int amount = totalAmountService.getTotalAmount(concertId, seatNumbers);
