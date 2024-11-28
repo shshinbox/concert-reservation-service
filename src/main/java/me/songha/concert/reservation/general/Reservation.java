@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
-import me.songha.concert.common.entity.BaseTimeEntity;
+import me.songha.concert.shared.entity.BaseTimeEntity;
 import me.songha.concert.concert.Concert;
 import me.songha.concert.reservation.seat.ReservationSeat;
 

@@ -1,6 +1,8 @@
 package me.songha.concert.payment;
 
 import lombok.RequiredArgsConstructor;
+import me.songha.concert.seat.Seat;
+import me.songha.concert.seat.SeatNotFoundException;
 import me.songha.concert.seat.SeatRepositoryService;
 import me.songha.concert.seatprice.SeatGrade;
 import me.songha.concert.seatprice.SeatPriceRepositoryService;
@@ -23,10 +25,16 @@ public class TotalAmountService {
 
     private Map<SeatGrade, Integer> getGroupingTickets(List<String> seatNumbers) {
         Map<SeatGrade, Integer> result = new HashMap<>();
-        seatNumbers.forEach(seatNumber -> {
-            SeatGrade grade = seatRepositoryService.getGradeBySeatNumber(seatNumber);
-            result.put(grade, result.getOrDefault(grade, 0) + 1);
-        });
+        List<Seat> seats = seatRepositoryService.getSeatsBySeatNumbers(seatNumbers);
+
+        for (String seatNumber : seatNumbers) {
+            Seat seat = seats.stream()
+                    .filter(s -> s.getSeatNumber().equals(seatNumber))
+                    .findFirst().orElseThrow(() -> new SeatNotFoundException("[Error] Seat not found."));
+
+            result.put(seat.getGrade(), result.getOrDefault(seat.getGrade(), 0) + 1);
+        }
+
         return result;
     }
 }

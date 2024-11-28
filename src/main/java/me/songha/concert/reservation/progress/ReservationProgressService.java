@@ -2,7 +2,8 @@ package me.songha.concert.reservation.progress;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.songha.concert.common.exception.ReservationIllegalArgumentException;
+import me.songha.concert.shared.exception.ReservationIllegalArgumentException;
+import me.songha.concert.shared.util.ReservationNumberGenerator;
 import me.songha.concert.payment.MockPaymentService;
 import me.songha.concert.payment.PaymentStatus;
 import me.songha.concert.payment.TotalAmountService;

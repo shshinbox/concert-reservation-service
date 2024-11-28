@@ -5,7 +5,7 @@ import lombok.Data;
 
 @AllArgsConstructor
 @Data
-public class ReservationDetailsResponse {
+public class ReservationPendingDetailsResponse {
     private String requestId;
     private String status;
     private String reservationId;

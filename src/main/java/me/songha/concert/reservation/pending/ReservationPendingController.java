@@ -2,7 +2,8 @@ package me.songha.concert.reservation.pending;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import me.songha.concert.common.CurrentUser;
+import me.songha.concert.shared.security.CurrentUser;
+import me.songha.concert.shared.util.RequestNumberGenerator;
 import me.songha.concert.reservation.general.ReservationStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,14 +31,14 @@ public class ReservationPendingController {
     }
 
     @GetMapping("/request-id/{requestId}/details")
-    public ResponseEntity<ReservationDetailsResponse> getReservationDetails(@PathVariable String requestId) {
+    public ResponseEntity<ReservationPendingDetailsResponse> getReservationDetails(@PathVariable String requestId) {
         String status = reservationPendingRedisService.getStatusByRequestId(requestId);
         if (status == null || status.equals(ReservationStatus.PENDING.name())) {
-            return ResponseEntity.status(404).body(new ReservationDetailsResponse(requestId, "[Error] Request ID not found.", null));
+            return ResponseEntity.status(404).body(new ReservationPendingDetailsResponse(requestId, "[Error] Request ID not found.", null));
         }
         String reservationId = reservationPendingRedisService.getReservationIdByRequestId(requestId);
 
-        return ResponseEntity.ok(new ReservationDetailsResponse(requestId, status, reservationId));
+        return ResponseEntity.ok(new ReservationPendingDetailsResponse(requestId, status, reservationId));
     }
 
 }

@@ -1,4 +1,4 @@
-package me.songha.concert.messaging;
+package me.songha.concert.shared.messaging;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

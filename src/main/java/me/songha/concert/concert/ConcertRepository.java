@@ -10,8 +10,8 @@ public interface ConcertRepository extends JpaRepository<Concert, Long> {
     @Query("""
             select c
             from Concert c
-            join c.venue v
+            join fetch c.venue v
             where c.id = :concertId
             """)
-    Optional<Concert> findByConcertId(Long concertId);
+    Optional<Concert> findConcertWithVenueById(Long concertId);
 }

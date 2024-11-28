@@ -7,7 +7,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import me.songha.concert.common.entity.BaseTimeEntity;
+import me.songha.concert.shared.entity.BaseTimeEntity;
 import me.songha.concert.concert.Concert;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

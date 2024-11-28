@@ -1,6 +1,6 @@
 package me.songha.concert.config;
 
-import me.songha.concert.common.UserArgumentResolver;
+import me.songha.concert.shared.security.UserArgumentResolver;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;

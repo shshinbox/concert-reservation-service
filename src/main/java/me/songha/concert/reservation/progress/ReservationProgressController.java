@@ -3,7 +3,7 @@ package me.songha.concert.reservation.progress;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.songha.concert.common.CurrentUser;
+import me.songha.concert.shared.security.CurrentUser;
 import me.songha.concert.reservation.general.ReservationStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;

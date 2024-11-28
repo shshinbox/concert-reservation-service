@@ -7,10 +7,10 @@ import java.util.List;
 
 public interface ReservationSeatRepository extends JpaRepository<ReservationSeat, Long> {
     @Query("""
-            select new me.songha.concert.reservation.seat.ReservationSeatDto(rs.id, rs.reservation.id, s.seatNumber, rs.price)
+            select rs
             from ReservationSeat rs
-            join rs.seat s
+            join fetch rs.seat s
             where rs.reservation.id in :reservationIds
             """)
-    List<ReservationSeatDto> findByReservationIds(List<Long> reservationIds);
+    List<ReservationSeat> findByReservationIds(List<Long> reservationIds);
 }

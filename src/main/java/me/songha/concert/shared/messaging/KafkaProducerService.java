@@ -1,4 +1,4 @@
-package me.songha.concert.messaging;
+package me.songha.concert.shared.messaging;
 
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;

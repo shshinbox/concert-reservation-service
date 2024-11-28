@@ -1,4 +1,4 @@
-package me.songha.concert.common.exception;
+package me.songha.concert.shared.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

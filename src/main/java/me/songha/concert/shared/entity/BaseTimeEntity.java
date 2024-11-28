@@ -1,4 +1,4 @@
-package me.songha.concert.common.entity;
+package me.songha.concert.shared.entity;
 
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;

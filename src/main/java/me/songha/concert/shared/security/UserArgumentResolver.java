@@ -1,4 +1,4 @@
-package me.songha.concert.common;
+package me.songha.concert.shared.security;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.security.core.Authentication;

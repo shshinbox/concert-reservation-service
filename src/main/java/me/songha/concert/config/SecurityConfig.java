@@ -1,7 +1,7 @@
 package me.songha.concert.config;
 
 import lombok.RequiredArgsConstructor;
-import me.songha.concert.auth.JwtAuthenticationFilter;
+import me.songha.concert.shared.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;

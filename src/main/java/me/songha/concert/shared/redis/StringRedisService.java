@@ -1,4 +1,4 @@
-package me.songha.concert.common;
+package me.songha.concert.shared.redis;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;

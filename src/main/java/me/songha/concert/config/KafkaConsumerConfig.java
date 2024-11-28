@@ -1,7 +1,7 @@
 package me.songha.concert.config;
 
 import lombok.extern.slf4j.Slf4j;
-import me.songha.concert.common.exception.ReservationIllegalArgumentException;
+import me.songha.concert.shared.exception.ReservationIllegalArgumentException;
 import me.songha.concert.concert.ConcertNotFoundException;
 import me.songha.concert.reservation.pending.ReservationPendingProducerRequest;
 import org.apache.kafka.clients.consumer.ConsumerConfig;

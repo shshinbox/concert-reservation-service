@@ -22,7 +22,13 @@ public class ConcertRepositoryService {
     }
 
     public ConcertDto getConcert(Long id) {
-        return concertRepository.findByConcertId(id)
+        return concertRepository.findById(id)
+                .map(concertConverter::toDto)
+                .orElseThrow(() -> new ConcertNotFoundException("[Error] Concert not found."));
+    }
+
+    public ConcertDto getConcertWithVenue(Long id) {
+        return concertRepository.findConcertWithVenueById(id)
                 .map(concertConverter::toDto)
                 .orElseThrow(() -> new ConcertNotFoundException("[Error] Concert not found."));
     }

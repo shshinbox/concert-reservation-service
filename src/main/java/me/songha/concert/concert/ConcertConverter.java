@@ -23,7 +23,6 @@ public class ConcertConverter {
                 .id(concert.getId())
                 .title(concert.getTitle())
                 .description(concert.getDescription())
-                .venueName(concert.getVenue().getName())
                 .concertDate(concert.getConcertDate())
                 .runningTime(concert.getRunningTime())
                 .salesStartAt(concert.getSalesStartAt())

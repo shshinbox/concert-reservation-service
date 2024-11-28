@@ -1,4 +1,4 @@
-package me.songha.concert.common.exception;
+package me.songha.concert.shared.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

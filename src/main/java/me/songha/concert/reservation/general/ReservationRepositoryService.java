@@ -1,12 +1,12 @@
 package me.songha.concert.reservation.general;
 
 import lombok.RequiredArgsConstructor;
-import me.songha.concert.common.exception.ReservationIllegalArgumentException;
 import me.songha.concert.concert.Concert;
 import me.songha.concert.concert.ConcertNotFoundException;
 import me.songha.concert.concert.ConcertRepository;
 import me.songha.concert.reservation.seat.ReservationSeatDto;
-import me.songha.concert.reservation.seat.ReservationSeatRepository;
+import me.songha.concert.reservation.seat.ReservationSeatRepositoryService;
+import me.songha.concert.shared.exception.ReservationIllegalArgumentException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,15 +24,13 @@ public class ReservationRepositoryService {
     private final ReservationRepository reservationRepository;
     private final ReservationConverter reservationConverter;
     private final ConcertRepository concertRepository;
-    private final ReservationSeatRepository reservationSeatRepository;
+    private final ReservationSeatRepositoryService reservationSeatRepositoryService;
 
     public Page<ReservationDto> getReservationsByUserId(Long userId, Pageable pageable) {
         Page<ReservationDto> reservations = reservationRepository.findByUserId(userId, pageable)
                 .map(reservationConverter::toDto);
-
         List<Long> reservationIds = reservations.stream().map(ReservationDto::getId).toList();
-
-        List<ReservationSeatDto> reservationSeats = reservationSeatRepository.findByReservationIds(reservationIds);
+        List<ReservationSeatDto> reservationSeats = reservationSeatRepositoryService.getByReservationIds(reservationIds);
 
         Map<Long, List<ReservationSeatDto>> reservationSeatsMap = reservationSeats.stream()
                 .collect(Collectors.groupingBy(ReservationSeatDto::getReservationId));
@@ -64,7 +62,7 @@ public class ReservationRepositoryService {
     }
 
     public Long createReservation(ReservationDto reservationDto) {
-        Concert concert = concertRepository.findByConcertId(reservationDto.getConcertId())
+        Concert concert = concertRepository.findById(reservationDto.getConcertId())
                 .orElseThrow(() -> new ConcertNotFoundException("[Error] Concert not found."));
         Reservation reservation = reservationConverter.toEntity(reservationDto, concert, List.of());
         Reservation createdReservation = reservationRepository.save(reservation);

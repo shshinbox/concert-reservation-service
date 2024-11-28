@@ -1,4 +1,4 @@
-package me.songha.concert.common.exception;
+package me.songha.concert.shared.exception;
 
 public class NotFoundException extends RuntimeException {
     public NotFoundException(String message) {

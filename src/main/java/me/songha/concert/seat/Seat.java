@@ -3,7 +3,7 @@ package me.songha.concert.seat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import me.songha.concert.common.entity.BaseTimeEntity;
+import me.songha.concert.shared.entity.BaseTimeEntity;
 import me.songha.concert.reservation.seat.ReservationSeat;
 import me.songha.concert.seatprice.SeatGrade;
 import me.songha.concert.venue.Venue;

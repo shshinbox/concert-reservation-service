@@ -1,6 +1,6 @@
 package me.songha.concert.reservation.general;
 
-import me.songha.concert.common.exception.ReservationIllegalArgumentException;
+import me.songha.concert.shared.exception.ReservationIllegalArgumentException;
 
 public enum ReservationStatus {
     PENDING, PROCESSING, CONFIRMED, CANCELED, REJECTED;

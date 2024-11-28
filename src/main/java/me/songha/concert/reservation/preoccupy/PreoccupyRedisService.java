@@ -1,8 +1,8 @@
 package me.songha.concert.reservation.preoccupy;
 
 import lombok.RequiredArgsConstructor;
-import me.songha.concert.common.StringRedisService;
-import me.songha.concert.common.exception.ReservationIllegalArgumentException;
+import me.songha.concert.shared.redis.StringRedisService;
+import me.songha.concert.shared.exception.ReservationIllegalArgumentException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

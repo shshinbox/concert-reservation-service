@@ -20,7 +20,6 @@ public class VenueConverter {
         return VenueDto.builder()
                 .id(venue.getId())
                 .capacity(venue.getCapacity())
-                .seatNumbers(venue.getSeats().stream().map(Seat::getSeatNumber).toList())
                 .name(venue.getName())
                 .build();
     }
