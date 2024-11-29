@@ -7,7 +7,7 @@ import me.songha.concert.concert.ConcertRepositoryService;
 import me.songha.concert.reservation.general.ReservationDto;
 import me.songha.concert.reservation.general.ReservationRepositoryService;
 import me.songha.concert.reservation.general.ReservationStatus;
-import me.songha.concert.reservation.history.ReservationHistoryRepositoryService;
+import me.songha.concert.shared.aspect.ReservationEventLogger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,9 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReservationPendingService {
     private final ReservationPendingRedisService reservationPendingRedisService;
     private final ReservationRepositoryService reservationRepositoryService;
-    private final ReservationHistoryRepositoryService reservationHistoryRepositoryService;
     private final ConcertRepositoryService concertRepositoryService;
 
+    @ReservationEventLogger
     public void processing(ReservationPendingProducerRequest request) {
         ConcertDto concertDto = concertRepositoryService.getConcert(request.getConcertId());
 
@@ -33,7 +33,5 @@ public class ReservationPendingService {
         Long reservationId = reservationRepositoryService.createReservation(reservationDto);
         reservationPendingRedisService.saveReservationIdByRequestId(request.getRequestId(), reservationId);
         reservationPendingRedisService.updateStatus(request.getRequestId(), ReservationStatus.PROCESSING.toString());
-
-        reservationHistoryRepositoryService.saveHistory(reservationId, request.getUserId(), 0, ReservationStatus.PROCESSING);
     }
 }

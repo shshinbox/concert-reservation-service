@@ -3,6 +3,7 @@ package me.songha.concert.reservation.progress;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.songha.concert.shared.aspect.ReservationEventLogger;
 import me.songha.concert.shared.security.CurrentUser;
 import me.songha.concert.reservation.general.ReservationStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReservationProgressController {
     private final ReservationProgressService reservationProgressService;
 
+    @ReservationEventLogger
     @PatchMapping
     public ResponseEntity<ReservationProgressResponse> progressReservation(
             @CurrentUser Long userId, @Valid @RequestBody ReservationProgressRequest request) {

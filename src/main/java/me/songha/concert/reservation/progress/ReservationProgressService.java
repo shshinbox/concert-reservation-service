@@ -2,16 +2,15 @@ package me.songha.concert.reservation.progress;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.songha.concert.shared.exception.ReservationIllegalArgumentException;
-import me.songha.concert.shared.util.ReservationNumberGenerator;
 import me.songha.concert.payment.MockPaymentService;
 import me.songha.concert.payment.PaymentStatus;
 import me.songha.concert.payment.TotalAmountService;
 import me.songha.concert.reservation.general.ReservationRepositoryService;
 import me.songha.concert.reservation.general.ReservationStatus;
-import me.songha.concert.reservation.history.ReservationHistoryRepositoryService;
 import me.songha.concert.reservation.preoccupy.PreoccupyRedisService;
 import me.songha.concert.reservation.seat.ReservationSeatRepositoryService;
+import me.songha.concert.shared.exception.ReservationIllegalArgumentException;
+import me.songha.concert.shared.util.ReservationNumberGenerator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +23,6 @@ import java.util.List;
 public class ReservationProgressService {
     private final MockPaymentService mockPaymentService;
     private final ReservationRepositoryService reservationRepositoryService;
-    private final ReservationHistoryRepositoryService reservationHistoryRepositoryService;
     private final ReservationSeatRepositoryService reservationSeatRepositoryService;
     private final PreoccupyRedisService preoccupyRedisService;
     private final TotalAmountService totalAmountService;
@@ -60,7 +58,6 @@ public class ReservationProgressService {
             reservationSeatRepositoryService.reserveSeats(reservationId, seatNumbers);
         }
         reservationRepositoryService.updateReservationInfo(reservationId, reservationNumber, amount, status);
-        reservationHistoryRepositoryService.saveHistory(reservationId, userId, amount, status);
 
         return status;
     }

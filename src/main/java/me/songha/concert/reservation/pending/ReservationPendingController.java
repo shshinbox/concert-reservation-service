@@ -2,6 +2,7 @@ package me.songha.concert.reservation.pending;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import me.songha.concert.shared.aspect.ReservationEventLogger;
 import me.songha.concert.shared.security.CurrentUser;
 import me.songha.concert.shared.util.RequestNumberGenerator;
 import me.songha.concert.reservation.general.ReservationStatus;
@@ -15,6 +16,7 @@ public class ReservationPendingController {
     private final ReservationPendingProducer reservationPendingProducer;
     private final ReservationPendingRedisService reservationPendingRedisService;
 
+    @ReservationEventLogger
     @PostMapping
     public ResponseEntity<ReservationPendingResponse> pendingReservation(
             @CurrentUser Long userId, @Valid @RequestBody ReservationPendingRequest request) {
