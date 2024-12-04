@@ -2,7 +2,6 @@ package me.songha.concert.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 import me.songha.concert.reservation.general.ReservationDto;
 import me.songha.concert.reservation.general.ReservationNotFoundException;
 import me.songha.concert.reservation.general.ReservationRepositoryService;
@@ -19,7 +18,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -43,9 +41,6 @@ public class JwtAuthenticationFilterTest {
 
     @BeforeEach
     void setUp() {
-        String SECRET_KEY = "my-fixed-secret-key-my-fixed-secret-key";
-        key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
-
         validToken = Jwts.builder()
                 .setSubject("user123")
                 .claim("role", "USER")
@@ -136,17 +131,4 @@ public class JwtAuthenticationFilterTest {
                 .andExpect(status().is2xxSuccessful());
     }
 
-    @Test
-    void generateJWT() {
-        String jwt = Jwts.builder()
-                .claim("userId", 567L)
-                .setSubject("userId123")
-                .claim("role", "USER")
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000))
-                .signWith(key)
-                .compact();
-
-        System.out.println(jwt);
-    }
 }

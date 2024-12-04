@@ -20,6 +20,7 @@ public class ReservationSeatConverter {
         return ReservationSeatDto.builder()
                 .id(reservationSeat.getId())
                 .price(reservationSeat.getPrice())
+                .seatNumber(reservationSeat.getSeat().getSeatNumber())
                 .reservationId(reservationSeat.getReservation().getId())
                 .build();
     }

@@ -13,8 +13,8 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Service
 public class PreoccupyRedisService {
-    private static final String RESERVATION_SEAT_KEY_PREFIX = "reservation_seat_concert:%d:seat:%s";
-    private static final String RESERVATION_SEAT_KEY_PATTERN_PREFIX = "reservation_seat_concert:%d:seat:*";
+    private static final String RESERVATION_SEAT_KEY_PREFIX = "concert:reservation_seat_concert:%d:seat:%s";
+    private static final String RESERVATION_SEAT_KEY_PATTERN_PREFIX = "concert:reservation_seat_concert:%d:seat:*";
     private final StringRedisService redisService;
 
     public boolean preoccupySeats(Long concertId, String seatNumber, Long userId) {

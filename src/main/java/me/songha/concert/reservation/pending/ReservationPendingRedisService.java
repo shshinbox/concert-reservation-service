@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ReservationPendingRedisService {
     private final StringRedisService redisService;
-    private static final String RESERVATION_STATUS_KEY_PREFIX = "reservation-status:";
-    private static final String RESERVATION_ID_KEY_PREFIX = "reservation-id:";
+    private static final String RESERVATION_STATUS_KEY_PREFIX = "concert:reservation-status:";
+    private static final String RESERVATION_ID_KEY_PREFIX = "concert:reservation-id:";
 
     public void saveStatus(String requestId, String status) {
         String key = RESERVATION_STATUS_KEY_PREFIX + requestId;

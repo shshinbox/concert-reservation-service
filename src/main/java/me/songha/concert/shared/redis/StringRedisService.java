@@ -35,4 +35,8 @@ public class StringRedisService {
     public String getValue(String key) {
         return redisTemplate.opsForValue().get(key);
     }
+
+    public boolean isKeyExist(String key) {
+        return null != redisTemplate.opsForValue().get(key);
+    }
 }

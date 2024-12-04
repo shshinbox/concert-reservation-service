@@ -26,6 +26,7 @@ public class ReservationConverter {
                 .concertId(reservation.getConcert().getId())
                 .concertTitle(reservation.getConcert().getTitle())
                 .reservationStatus(reservation.getStatus().name())
+                .totalAmount(reservation.getTotalAmount())
                 .build();
     }
 
