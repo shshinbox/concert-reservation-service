@@ -7,7 +7,6 @@ import me.songha.concert.concert.ConcertRepositoryService;
 import me.songha.concert.reservation.general.ReservationDto;
 import me.songha.concert.reservation.general.ReservationRepositoryService;
 import me.songha.concert.reservation.general.ReservationStatus;
-import me.songha.concert.shared.aspect.ReservationEventLogger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +19,6 @@ public class ReservationPendingService {
     private final ReservationRepositoryService reservationRepositoryService;
     private final ConcertRepositoryService concertRepositoryService;
 
-    @ReservationEventLogger
     public void processing(ReservationPendingProducerRequest request) {
         ConcertDto concertDto = concertRepositoryService.getConcert(request.getConcertId());
 

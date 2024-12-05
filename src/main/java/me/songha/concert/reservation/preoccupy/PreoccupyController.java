@@ -2,7 +2,7 @@ package me.songha.concert.reservation.preoccupy;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import me.songha.concert.shared.aspect.ReservationEventLogger;
+import me.songha.concert.reservation.reservationevent.ReservationEventLogger;
 import me.songha.concert.shared.security.CurrentUser;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

@@ -1,4 +1,4 @@
-package me.songha.concert.shared.aspect;
+package me.songha.concert.reservation.reservationevent;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
