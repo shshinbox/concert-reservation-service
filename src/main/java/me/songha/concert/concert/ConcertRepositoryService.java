@@ -15,21 +15,20 @@ import org.springframework.transaction.annotation.Transactional;
 public class ConcertRepositoryService {
     private final ConcertRepository concertRepository;
     private final VenueRepository venueRepository;
-    private final ConcertConverter concertConverter;
 
     public Page<ConcertDto> getAllConcerts(Pageable pageable) {
-        return concertRepository.findAll(pageable).map(concertConverter::toDto);
+        return concertRepository.findAll(pageable).map(ConcertConverter::toDto);
     }
 
     public ConcertDto getConcert(Long id) {
         return concertRepository.findById(id)
-                .map(concertConverter::toDto)
+                .map(ConcertConverter::toDto)
                 .orElseThrow(() -> new ConcertNotFoundException("[Error] Concert not found."));
     }
 
     public ConcertDto getConcertWithVenue(Long id) {
         return concertRepository.findConcertWithVenueById(id)
-                .map(concertConverter::toDto)
+                .map(ConcertConverter::toDto)
                 .orElseThrow(() -> new ConcertNotFoundException("[Error] Concert not found."));
     }
 
@@ -37,7 +36,7 @@ public class ConcertRepositoryService {
         Venue venue = venueRepository.findByName(concertDto.getVenueName())
                 .orElseThrow(() -> new VenueNotFoundException("[Error] Venue not found."));
 
-        concertRepository.save(concertConverter.toEntity(concertDto, venue));
+        concertRepository.save(ConcertConverter.toEntity(concertDto, venue));
     }
 
     public void updateConcert(Long id, ConcertDto concertDto) {
@@ -55,7 +54,7 @@ public class ConcertRepositoryService {
                 concertDto.getRunningTime()
         );
 
-        concertRepository.save(concertConverter.toEntity(concertDto, venue));
+        concertRepository.save(ConcertConverter.toEntity(concertDto, venue));
     }
 
     public void deleteConcert(Long id) {

@@ -1,9 +1,9 @@
 package me.songha.concert.config;
 
 import lombok.extern.slf4j.Slf4j;
-import me.songha.concert.shared.exception.ReservationIllegalArgumentException;
 import me.songha.concert.concert.ConcertNotFoundException;
 import me.songha.concert.reservation.pending.ReservationPendingProducerRequest;
+import me.songha.concert.shared.exception.ReservationIllegalArgumentException;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.context.annotation.Bean;
@@ -69,7 +69,7 @@ public class KafkaConsumerConfig {
     public DefaultErrorHandler errorHandler(KafkaTemplate<String, Object> kafkaTemplate) {
         DefaultErrorHandler errorHandler = new DefaultErrorHandler((record, exception) -> {
             kafkaTemplate.send(DLQ_TOPIC, record.key().toString(), record.value());
-            log.error("[Error] Moved to DLQ: {}", record.value());
+            log.error("[Error] Moved to DLQ: {}, exception message: {}", record.value(), exception.getMessage());
         }, new FixedBackOff(3000L, 3));
 
         errorHandler.addNotRetryableExceptions(ReservationIllegalArgumentException.class, ConcertNotFoundException.class);

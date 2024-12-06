@@ -22,13 +22,12 @@ import java.util.stream.Collectors;
 @Service
 public class ReservationRepositoryService {
     private final ReservationRepository reservationRepository;
-    private final ReservationConverter reservationConverter;
     private final ConcertRepository concertRepository;
     private final ReservationSeatRepositoryService reservationSeatRepositoryService;
 
     public Page<ReservationDto> getReservationsByUserId(Long userId, Pageable pageable) {
         Page<ReservationDto> reservations = reservationRepository.findByUserId(userId, pageable)
-                .map(reservationConverter::toDto);
+                .map(ReservationConverter::toDto);
         List<Long> reservationIds = reservations.stream().map(ReservationDto::getId).toList();
         List<ReservationSeatDto> reservationSeats = reservationSeatRepositoryService.getByReservationIds(reservationIds);
 
@@ -46,25 +45,25 @@ public class ReservationRepositoryService {
 
     public Page<ReservationDto> getReservationsByConcertId(Long concertId, Pageable pageable) {
         return reservationRepository.findByConcertId(concertId, pageable)
-                .map(reservationConverter::toDto);
+                .map(ReservationConverter::toDto);
     }
 
     public ReservationDto getReservationByUserIdAndConcertId(Long userId, Long concertId) {
         return reservationRepository.findTopByUserIdAndConcertId(userId, concertId)
-                .map(reservationConverter::toDto)
+                .map(ReservationConverter::toDto)
                 .orElseThrow(() -> new ReservationNotFoundException("[Error] Reservation not found."));
     }
 
     public ReservationDto getReservation(Long id) {
         return reservationRepository.findReservationById(id)
-                .map(reservationConverter::toDto)
+                .map(ReservationConverter::toDto)
                 .orElseThrow(() -> new ReservationNotFoundException("[Error] Reservation not found."));
     }
 
     public Long createReservation(ReservationDto reservationDto) {
         Concert concert = concertRepository.findById(reservationDto.getConcertId())
                 .orElseThrow(() -> new ConcertNotFoundException("[Error] Concert not found."));
-        Reservation reservation = reservationConverter.toEntity(reservationDto, concert, List.of());
+        Reservation reservation = ReservationConverter.toEntity(reservationDto, concert, List.of());
         Reservation createdReservation = reservationRepository.save(reservation);
 
         return createdReservation.getId();

@@ -20,11 +20,10 @@ public class ReservationSeatRepositoryService {
     private final ReservationSeatRepository reservationSeatRepository;
     private final ReservationRepository reservationRepository;
     private final SeatPriceRepository seatPriceRepository;
-    private final ReservationSeatConverter reservationSeatConverter;
 
     public List<ReservationSeatDto> getByReservationIds(List<Long> reservationIds) {
         return reservationSeatRepository.findByReservationIds(reservationIds)
-                .stream().map(reservationSeatConverter::toDto).toList();
+                .stream().map(ReservationSeatConverter::toDto).toList();
     }
 
     public void reserveSeats(Long reservationId, List<String> seatNumbers) {

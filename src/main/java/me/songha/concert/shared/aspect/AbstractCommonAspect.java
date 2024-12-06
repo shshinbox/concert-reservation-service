@@ -15,12 +15,16 @@ public abstract class AbstractCommonAspect {
     protected void allRestControllers() {
     }
 
+    @Pointcut("execution(* me.songha.concert..*Controller.*(..))")
+    protected void allControllers() {
+    }
+
     protected Method getMethod(JoinPoint joinPoint) {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         return signature.getMethod();
     }
 
-    protected Object[] getParameter(JoinPoint joinPoint) {
+    protected Object[] getParameters(JoinPoint joinPoint) {
         return joinPoint.getArgs();
     }
 }

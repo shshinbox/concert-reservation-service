@@ -22,7 +22,7 @@ public class LoggingAspect extends AbstractCommonAspect {
         Method method = getMethod(joinPoint);
         log.info("[Start] executing method: {}", method);
 
-        Object[] args = getParameter(joinPoint);
+        Object[] args = getParameters(joinPoint);
         for (Object arg : args) {
             log.info(">>[Input] parameter type: {}, value: {}", arg.getClass().getSimpleName(), arg);
         }
@@ -38,7 +38,7 @@ public class LoggingAspect extends AbstractCommonAspect {
     public void logAfterThrowing(JoinPoint joinPoint, Exception exception) {
         Method method = getMethod(joinPoint);
         log.error("[Exception] method: {}, exception class: {}, exception message: {}", method.getName(), exception.getClass(), exception.getMessage());
-        Object[] args = getParameter(joinPoint);
+        Object[] args = getParameters(joinPoint);
         for (Object arg : args) {
             log.error(">>[Exception] parameter type: {}, value: {}", arg.getClass().getSimpleName(), arg);
         }

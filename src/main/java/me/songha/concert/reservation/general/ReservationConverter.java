@@ -2,13 +2,11 @@ package me.songha.concert.reservation.general;
 
 import me.songha.concert.concert.Concert;
 import me.songha.concert.reservation.seat.ReservationSeat;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component
 public class ReservationConverter {
-    public Reservation toEntity(ReservationDto reservationDto, Concert concert, List<ReservationSeat> reservationSeats) {
+    public static Reservation toEntity(ReservationDto reservationDto, Concert concert, List<ReservationSeat> reservationSeats) {
         return Reservation.builder()
                 .id(reservationDto.getId())
                 .userId(reservationDto.getUserId())
@@ -19,7 +17,7 @@ public class ReservationConverter {
                 .build();
     }
 
-    public ReservationDto toDto(Reservation reservation) {
+    public static ReservationDto toDto(Reservation reservation) {
         return ReservationDto.builder()
                 .id(reservation.getId())
                 .userId(reservation.getUserId())
@@ -27,6 +25,8 @@ public class ReservationConverter {
                 .concertTitle(reservation.getConcert().getTitle())
                 .reservationStatus(reservation.getStatus().name())
                 .totalAmount(reservation.getTotalAmount())
+                .createdAt(reservation.getCreatedAt())
+                .updatedAt(reservation.getUpdatedAt())
                 .build();
     }
 

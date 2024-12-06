@@ -2,12 +2,9 @@ package me.songha.concert.reservation.seat;
 
 import me.songha.concert.reservation.general.Reservation;
 import me.songha.concert.seat.Seat;
-import org.springframework.stereotype.Component;
 
-@Component
 public class ReservationSeatConverter {
-
-    public ReservationSeat toEntity(ReservationSeatDto reservationSeatDto, Seat seat, Reservation reservation) {
+    public static ReservationSeat toEntity(ReservationSeatDto reservationSeatDto, Seat seat, Reservation reservation) {
         return ReservationSeat.builder()
                 .id(reservationSeatDto.getId())
                 .price(reservationSeatDto.getPrice())
@@ -16,7 +13,7 @@ public class ReservationSeatConverter {
                 .build();
     }
 
-    public ReservationSeatDto toDto(ReservationSeat reservationSeat) {
+    public static ReservationSeatDto toDto(ReservationSeat reservationSeat) {
         return ReservationSeatDto.builder()
                 .id(reservationSeat.getId())
                 .price(reservationSeat.getPrice())

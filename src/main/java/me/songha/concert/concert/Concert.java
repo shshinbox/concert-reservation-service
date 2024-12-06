@@ -4,8 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import me.songha.concert.shared.entity.BaseTimeEntity;
 import me.songha.concert.seatprice.SeatPrice;
+import me.songha.concert.shared.entity.BaseTimeEntity;
 import me.songha.concert.venue.Venue;
 
 import java.time.LocalDateTime;

@@ -18,7 +18,7 @@ public class ReservationEventAspect extends AbstractCommonAspect {
     @Around("@annotation(me.songha.concert.reservation.reservationevent.ReservationEventLogger)")
     public Object logReservationHistory(ProceedingJoinPoint joinPoint) throws Throwable {
         String methodName = getMethod(joinPoint).getName();
-        Object[] parameters = getParameter(joinPoint);
+        Object[] parameters = getParameters(joinPoint);
 
         Object result;
         try {

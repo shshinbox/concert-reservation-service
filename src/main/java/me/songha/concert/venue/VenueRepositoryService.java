@@ -15,29 +15,28 @@ import java.util.List;
 @Service
 public class VenueRepositoryService {
     private final VenueRepository venueRepository;
-    private final VenueConverter venueConverter;
     private final SeatRepository seatRepository;
 
     public Page<VenueDto> getAllVenues(Pageable pageable) {
-        return venueRepository.findAll(pageable).map(venueConverter::toDto);
+        return venueRepository.findAll(pageable).map(VenueConverter::toDto);
     }
 
     public VenueDto getVenueByName(String name) {
         return venueRepository.findByName(name)
-                .map(venueConverter::toDto)
+                .map(VenueConverter::toDto)
                 .orElseThrow(() -> new VenueNotFoundException("[Error] Venue not found."));
     }
 
     public VenueDto getVenue(Long id) {
         return venueRepository.findById(id)
-                .map(venueConverter::toDto)
+                .map(VenueConverter::toDto)
                 .orElseThrow(() -> new VenueNotFoundException("[Error] Venue not found."));
     }
 
     public void createVenue(VenueDto venueDto) {
         List<Seat> seats = seatRepository.findByVenueId(venueDto.getId());
 
-        venueRepository.save(venueConverter.toEntity(venueDto, seats));
+        venueRepository.save(VenueConverter.toEntity(venueDto, seats));
     }
 
     public void updateVenue(Long id, VenueDto venueDto) {
@@ -52,7 +51,7 @@ public class VenueRepositoryService {
                 seats
         );
 
-        venueRepository.save(venueConverter.toEntity(venueDto, seats));
+        venueRepository.save(VenueConverter.toEntity(venueDto, seats));
     }
 
     public void deleteVenue(Long id) {

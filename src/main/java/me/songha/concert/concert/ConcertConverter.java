@@ -1,11 +1,9 @@
 package me.songha.concert.concert;
 
 import me.songha.concert.venue.Venue;
-import org.springframework.stereotype.Component;
 
-@Component
 public class ConcertConverter {
-    public Concert toEntity(ConcertDto dto, Venue venue) {
+    public static Concert toEntity(ConcertDto dto, Venue venue) {
         return Concert.builder()
                 .id(dto.getId())
                 .title(dto.getTitle())
@@ -18,7 +16,7 @@ public class ConcertConverter {
                 .build();
     }
 
-    public ConcertDto toDto(Concert concert) {
+    public static ConcertDto toDto(Concert concert) {
         return ConcertDto.builder()
                 .id(concert.getId())
                 .title(concert.getTitle())
