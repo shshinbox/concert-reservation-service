@@ -1,7 +1,8 @@
-package me.songha.concert.config;
+package me.songha.concert.config.kafka;
 
 import lombok.extern.slf4j.Slf4j;
 import me.songha.concert.concert.ConcertNotFoundException;
+import me.songha.concert.reservation.common.ReservationProperties;
 import me.songha.concert.reservation.pending.ReservationPendingProducerRequest;
 import me.songha.concert.shared.exception.ReservationIllegalArgumentException;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -20,23 +21,10 @@ import org.springframework.util.backoff.FixedBackOff;
 import java.util.HashMap;
 import java.util.Map;
 
-
 @Slf4j
 @Configuration
 public class KafkaConsumerConfig {
     private static final String DLQ_TOPIC = "dlq-topic";
-
-    @Bean
-    public Map<String, Object> consumerConfigs() {
-        Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.0.37:9092");
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "reservation-group");
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
-        props.put(JsonDeserializer.TRUSTED_PACKAGES, "me.songha.concert.*");
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        return props;
-    }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Object> genericKafkaListenerContainerFactory() {
@@ -50,7 +38,7 @@ public class KafkaConsumerConfig {
     @Bean
     public ConsumerFactory<String, Object> genericConsumerFactory() {
         return new DefaultKafkaConsumerFactory<>(
-                consumerConfigs(),
+                consumerProps(),
                 new StringDeserializer(),
                 new JsonDeserializer<>(Object.class)
         );
@@ -59,7 +47,7 @@ public class KafkaConsumerConfig {
     @Bean
     public ConsumerFactory<String, ReservationPendingProducerRequest> reservationConsumerFactory() {
         return new DefaultKafkaConsumerFactory<>(
-                consumerConfigs(),
+                consumerProps(),
                 new StringDeserializer(),
                 new JsonDeserializer<>(ReservationPendingProducerRequest.class)
         );
@@ -70,6 +58,7 @@ public class KafkaConsumerConfig {
         DefaultErrorHandler errorHandler = new DefaultErrorHandler((record, exception) -> {
             kafkaTemplate.send(DLQ_TOPIC, record.key().toString(), record.value());
             log.error("[Error] Moved to DLQ: {}, exception message: {}", record.value(), exception.getMessage());
+            log.error(">>[Error] stacktrace: ", exception);
         }, new FixedBackOff(3000L, 3));
 
         errorHandler.addNotRetryableExceptions(ReservationIllegalArgumentException.class, ConcertNotFoundException.class);
@@ -87,6 +76,17 @@ public class KafkaConsumerConfig {
         factory.setCommonErrorHandler(errorHandler(kafkaTemplate));
         factory.setBatchListener(true);
         return factory;
+    }
+
+    private Map<String, Object> consumerProps() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.0.37:9092");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, ReservationProperties.RESERVATION_GROUP_ID);
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        props.put(JsonDeserializer.TRUSTED_PACKAGES, "me.songha.concert.*");
+        props.put(org.apache.kafka.clients.consumer.ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        return props;
     }
 
 }

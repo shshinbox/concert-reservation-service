@@ -9,4 +9,6 @@ public class ReservationPendingDetailsResponse {
     private String requestId;
     private String status;
     private String reservationId;
+    private long lag;
+    private String message;
 }

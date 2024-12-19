@@ -8,4 +8,6 @@ import lombok.Data;
 public class ReservationPendingResponse {
     private String requestId;
     private String message;
+    private long partition;
+    private long offset;
 }
