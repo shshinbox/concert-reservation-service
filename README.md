@@ -21,7 +21,7 @@
 
 ---
 
-### 4. 아키텍처 (현재)
+### 4. 아키텍처 (현재 프로젝트 기반)
 
 ```mermaid
 graph LR
@@ -67,7 +67,15 @@ graph LR
     style RedisStore fill:#fff9c4,stroke:#fbc02d
 ```
 
-### 5. TO-DO 아키텍처
+
+### 5.1. 아키텍처 고도화 안내
+본 모놀리식 구조에서 발생한 Kafka 대기열의 추측성 순번 및 오버헤드 한계를 인지하고, 
+이를 해결하기 위해 **Kotlin + WebFlux + Redis ZSet** 기반의 고성능 분산 대기열 서비스로 분리 및 고도화를 완료했습니다.
+
+👉 [Redis 기반 분산 대기열 시스템 저장소 바로가기](https://github.com/shshinbox/waiting-queue-service)
+
+
+### 5.2. 고도화 아키텍처
 
 ```mermaid
 graph LR
@@ -119,7 +127,7 @@ graph LR
     style Kafka fill:#faf5ff,stroke:#7b1fa2
 ```
 
-#### 아키텍처 개선 요약
+### 5.3. 아키텍처 개선 요약
 
 | 구분 | 현재 | TODO |
 | :--- | :--- | :--- |
