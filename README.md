@@ -69,10 +69,11 @@ graph LR
 
 
 ### 5.1. 아키텍처 고도화 안내
-본 모놀리식 구조에서 발생한 Kafka 대기열의 추측성 순번 및 오버헤드 한계를 인지하고, 
-이를 해결하기 위해 **Kotlin + WebFlux + Redis ZSet** 기반의 고성능 분산 대기열 서비스로 분리 및 고도화를 완료했습니다.
+기존 모놀리식 구조에서는 좌석 선점, 예약 생성, 이벤트 발행 책임이 하나의 예약 흐름에 결합되어 있어 동시성 제어와 상태 일관성 관리가 복잡해지는 한계가 있었습니다.  
+이를 해결하기 위해 **Kotlin + WebFlux + Redis TTL + Redisson Lock + Kafka Outbox** 기반의 독립 좌석 선점 서비스로 분리하고, 선점 상태와 이벤트 발행 흐름을 분리하여 안정성을 높였습니다.
 
-👉 [Redis 기반 분산 대기열 시스템 저장소 바로가기](https://github.com/shshinbox/waiting-queue-service)
+- [Waiting Queue Service](https://github.com/shshinbox/waiting-queue-service): Redis ZSet 기반 대기열/입장 제어 서비스
+- [Seat Holding Service](https://github.com/shshinbox/seat-holding-service): Redis TTL, Redisson Lock, Kafka Outbox 기반 좌석 선점 서비스
 
 
 ### 5.2. 고도화 아키텍처
