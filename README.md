@@ -8,9 +8,22 @@
 
 ### 2. 개발 기간
 
-- 1차 기간: 2024-11-14 ~ 2024-11-21
+- 2024-11-14 ~ 2024-11-21
 
-### 3. 기술 스택
+
+### 3. 레거시 코드 저장소 안내
+이 저장소는 현재 프로젝트의 초기 구현 코드가 담긴 레거시 저장소입니다.
+이후 대기열 및 좌석 선점 로직의 동시성과 정합성 제어 구조를 보완하여 새 저장소에서 작업을 이어가고 있습니다. 
+개선된 최신 구조와 소스코드는 아래 저장소에서 보실 수 있습니다.
+
+#### 저장소 바로가기
+- [Waiting Queue Service](https://github.com/shshinbox/waiting-queue-service): Redis ZSet 기반 대기열 서비스
+- [Seat Holding Service](https://github.com/shshinbox/seat-holding-service): Redis 기반 동시성 제어와 Kafka 기반 예약 발급
+- [Reservation Service](https://github.com/shshinbox/reservation-service): Kafka 기반 예약 생성 분리와 예약 상태 관리
+
+---
+
+### 4. 기술 스택 (현재 프로젝트 기반)
 
 - backend: Java 21, Spring Boot 3.3
 - db: Redis, MariaDB
@@ -21,7 +34,7 @@
 
 ---
 
-### 4. 아키텍처 (현재 프로젝트 기반)
+### 5. 아키텍처
 
 ```mermaid
 graph LR
@@ -67,82 +80,6 @@ graph LR
     style RedisStore fill:#fff9c4,stroke:#fbc02d
 ```
 
-
-### 5.1. 아키텍처 고도화 안내
-기존 모놀리식 구조에서는 좌석 선점, 예약 생성, 이벤트 발행 책임이 하나의 예약 흐름에 결합되어 있어 동시성 제어와 상태 일관성 관리가 복잡해지는 한계가 있었습니다.  
-이를 해결하기 위해 **Kotlin + WebFlux + Redis TTL + Redisson Lock + Kafka Outbox** 기반의 독립 좌석 선점 서비스로 분리하고, 선점 상태와 이벤트 발행 흐름을 분리하여 안정성을 높였습니다.
-
-- [Waiting Queue Service](https://github.com/shshinbox/waiting-queue-service): Redis ZSet 기반 대기열/입장 제어 서비스
-- [Seat Holding Service](https://github.com/shshinbox/seat-holding-service): Redis TTL, Redisson Lock, Kafka Outbox 기반 좌석 선점 서비스
-
-
-### 5.2. 고도화 아키텍처
-
-```mermaid
-graph LR
-    %% 사용자 영역
-    User["사용자 (Client)"]
-
-    subgraph WaitingZone ["1. 대기 및 폴링 구역"]
-        direction TB
-        ZSET[("Redis ZSET<br/>(대기 순번 정렬)")]
-        PollSvc["Polling API"]
-    end
-
-    subgraph ActiveZone ["2. 활성 및 비즈니스 구역"]
-        direction TB
-        Svc["Main Service"]
-        Active[("Redis: 입장권 토큰")]
-        Lock[("Redis: 좌석 락 (Lock)")]
-    end
-
-    subgraph StorageZone ["3. 영속화 구역"]
-        direction TB
-        Kafka{{"Kafka (Event Bus)"}}
-        DB[(MariaDB)]
-    end
-
-    %% 프로세스 순서
-    User -->|"1. 입장 요청 (ZADD)"| ZSET
-    
-    %% 폴링 루프
-    User <-->|"2. 순례 확인 (Polling / ZRANK)"| PollSvc
-    PollSvc <--> ZSET
-
-    %% 입장 전환
-    ZSET -- "3. 순차적 활성화 (Worker)" --> Active
-
-    %% 메인 로직
-    User -->|"4. 입장 토큰 검증"| Svc
-    Svc <--> Active
-    
-    Svc -->|"5. 좌석 선택하기 (Distributed Lock)"| Lock
-    Svc -->|"6. 예약 확정 요청"| Kafka
-    
-    Kafka -->|"7. 비동기 DB 반영"| DB
-
-    %% 스타일링
-    style WaitingZone fill:#f0f4ff,stroke:#0052cc
-    style ActiveZone fill:#fff9e6,stroke:#ffcc00
-    style Lock fill:#ffeb3b,stroke:#fbc02d
-    style Kafka fill:#faf5ff,stroke:#7b1fa2
-```
-
-### 5.3. 아키텍처 개선 요약
-
-| 구분 | 현재 | TODO |
-| :--- | :--- | :--- |
-| **대기 순번** | 오프셋 기반 **추측** | `ZRANK` 기반 **정밀 순번** |
-| **중복 클릭** | 서버 로직에서 별도 처리 필요 | 자료구조 자체에서 **자동 중복 제거** |
-| **조회 성능** | 폴링 시 연산 복잡도 높음 | 메모리 기반 **실시간 조회 최적화** |
-| **DB 저장** | 로직 완료 후 즉시 DB 저장 | **Kafka 버퍼링** 후 비동기 저장 |
-
-#### 변경 사유
-1. **정확한 순번**: 분산된 오프셋을 계산하던 방식에서 정확한 순번 제공
-2. **데이터 정합성**: Redis ZSET을 활용해 '광클'로 인한 중복 진입을 인프라 단에서 차단
-3. **시스템 안정성**: Kafka를 DB 앞단의 버퍼(Event Bus)로 재배치하여, 트래픽 폭주 시에도 DB 장애를 방지하고 서비스 연속성 유지
-
----
 
 ### 6. ERD
 
